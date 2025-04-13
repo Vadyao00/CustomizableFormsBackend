@@ -64,6 +64,7 @@ public class Program
             }).AddXmlDataContractSerializerFormatters()
               .AddApplicationPart(typeof(AssemblyReference).Assembly);
 
+            
             //services.AddMediatR(cfg =>
                 //cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly));
             services.AddAutoMapper(typeof(Program));
