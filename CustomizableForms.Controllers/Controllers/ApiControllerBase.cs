@@ -56,7 +56,29 @@ public class ApiControllerBase : Controller
     {
         return baseResponse switch
         {
-            BadUserBadRequestResponse response => Unauthorized(),
+            BadUserBadRequestResponse response => Unauthorized(new ErrorDetails
+            {
+                Message = response.Message,
+                StatusCode = StatusCodes.Status401Unauthorized
+            }),
+            BlockedUserBadRequestResponse response => new ObjectResult(new ErrorDetails
+            {
+                Message = response.Message,
+                StatusCode = StatusCodes.Status403Forbidden
+            })
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            },
+            InvalidEmailBadRequestResponse response => Conflict(new ErrorDetails
+            {
+                Message = response.Message,
+                StatusCode = StatusCodes.Status409Conflict
+            }),
+            RefreshTokenBadRequestResponse response => BadRequest(new ErrorDetails
+            {
+                Message = response.Message,
+                StatusCode = StatusCodes.Status400BadRequest
+            }),
             ApiBadRequestResponse response => BadRequest(new ErrorDetails
             {
                 Message = response.Message,

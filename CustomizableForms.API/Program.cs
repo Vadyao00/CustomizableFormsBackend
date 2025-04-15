@@ -1,8 +1,10 @@
 using CustomizableForms.API.Extensions;
 using CustomizableForms.Controllers;
 using CustomizableForms.Controllers.Filters;
+using CustomizableForms.Domain.Requirements;
 using CustomizableForms.LoggerService;
 using CustomizableForms.Persistance.Hubs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CustomizableForms.API;
@@ -52,6 +54,8 @@ public class Program
             services.ConfigureRepositoryManager();
             services.AddHttpContextAccessor();
             services.AddSignalR();
+
+            services.AddScoped<IAuthorizationHandler, NotBlockedUserRequirementHandler>();
             
             services.ConfigureServiceManager();
 
@@ -72,7 +76,11 @@ public class Program
             services.AddAuthentication();
             services.ConfigureJWT(configuration);
             services.AddJwtConfiguration(configuration);
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("NotBlockedUserPolicy", policy =>
+                    policy.Requirements.Add(new NotBlockedUserRequirement()));
+            });
             services.AddRazorPages();
         }
 

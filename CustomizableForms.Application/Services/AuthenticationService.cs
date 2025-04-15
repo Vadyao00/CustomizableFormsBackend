@@ -68,12 +68,15 @@ public sealed class AuthenticationService : IAuthenticationService
     public async Task<ApiBaseResponse> ValidateUser(UserForAuthenticationDto userForAuth)
     {
         _user = await _manager.User.GetUserByEmailAsync(userForAuth.Email);
-
-        if (_user == null || !BCrypt.Net.BCrypt.Verify(userForAuth.Password, _user.PasswordHash) || !_user.IsActive)
+        
+        if (_user == null || !BCrypt.Net.BCrypt.Verify(userForAuth.Password, _user.PasswordHash))
         {
             return new BadUserBadRequestResponse();
         }
 
+        if(!_user.IsActive)
+            return new BlockedUserBadRequestResponse();
+        
         return new ApiOkResponse<User>(_user);
     }
     

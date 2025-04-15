@@ -33,6 +33,18 @@ public class UserService : IUserService
         return new ApiOkResponse<User>(existingUser);
     }
     
+    public async Task<ApiBaseResponse> GetUserByEmailWithoutCurrentUserAsync(string email)
+    {
+        var existingUser = await _repositoryManager.User.GetUserByEmailAsync(email);
+
+        if (existingUser == null)
+        {
+            return new InvalidEmailBadRequestResponse();
+        }
+        
+        return new ApiOkResponse<User>(existingUser);
+    }
+    
     public async Task<ApiBaseResponse> GetUserByIdAsync(Guid userId, User currentUser)
     {
         if (!CheckUser(currentUser))

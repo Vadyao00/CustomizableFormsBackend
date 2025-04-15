@@ -12,4 +12,5 @@ public interface IUserService
     Task<ApiBaseResponse> GetAllUsersAsync(User currentUser);
     Task<ApiBaseResponse> BlockUserAsync(Guid userId, User currentUser);
     Task<ApiBaseResponse> UnblockUserAsync(Guid userId, User currentUser);
+    Task<ApiBaseResponse> GetUserByEmailWithoutCurrentUserAsync(string email);
 }

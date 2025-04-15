@@ -74,7 +74,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return Ok(result.GetResult<TemplateDto>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpGet("my")]
     public async Task<IActionResult> GetMyTemplates()
     {
