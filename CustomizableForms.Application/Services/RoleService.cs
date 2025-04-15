@@ -95,11 +95,6 @@ public class RoleService : IRoleService
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("Current user not found");
-            }
-
             var currentUserRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
             if (!currentUserRoles.Any(r => r.Name == "Admin"))
             {

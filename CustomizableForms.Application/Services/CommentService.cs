@@ -39,11 +39,6 @@ public class CommentService(IRepositoryManager repository, ILoggerManager logger
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var template = await repository.Template.GetTemplateByIdAsync(templateId, trackChanges: false);
             if (template == null)
             {
@@ -93,11 +88,6 @@ public class CommentService(IRepositoryManager repository, ILoggerManager logger
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var comment = await repository.Comment.GetCommentByIdAsync(commentId, trackChanges: true);
             if (comment == null)
             {
@@ -137,11 +127,6 @@ public class CommentService(IRepositoryManager repository, ILoggerManager logger
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var comment = await repository.Comment.GetCommentByIdAsync(commentId, trackChanges: true);
             if (comment == null)
             {

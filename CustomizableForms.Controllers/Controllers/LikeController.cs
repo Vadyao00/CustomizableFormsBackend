@@ -21,7 +21,7 @@ public class LikeController(IServiceManager serviceManager, IHttpContextAccessor
         return Ok(result.GetResult<int>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpGet("status")]
     public async Task<IActionResult> GetLikeStatus(Guid templateId)
     {
@@ -36,7 +36,7 @@ public class LikeController(IServiceManager serviceManager, IHttpContextAccessor
         return Ok(result.GetResult<bool>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPost]
     public async Task<IActionResult> LikeTemplate(Guid templateId)
     {
@@ -51,7 +51,7 @@ public class LikeController(IServiceManager serviceManager, IHttpContextAccessor
         return Ok();
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpDelete]
     public async Task<IActionResult> UnlikeTemplate(Guid templateId)
     {

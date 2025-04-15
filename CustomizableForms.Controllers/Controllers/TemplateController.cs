@@ -89,7 +89,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return Ok(result.GetResult<IEnumerable<TemplateDto>>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpGet("accessible")]
     public async Task<IActionResult> GetAccessibleTemplates()
     {
@@ -104,7 +104,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return Ok(result.GetResult<IEnumerable<TemplateDto>>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPost]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> CreateTemplate([FromBody] TemplateForCreationDto templateDto)
@@ -121,7 +121,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return CreatedAtAction(nameof(GetTemplate), new { id = template.Id }, template);
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPut("{id}")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> UpdateTemplate(Guid id, [FromBody] TemplateForUpdateDto templateDto)
@@ -137,7 +137,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTemplate(Guid id)
     {
@@ -168,7 +168,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return Ok(result.GetResult<IEnumerable<QuestionDto>>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPost("{id}/questions")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> AddQuestion(Guid id, [FromBody] QuestionForCreationDto questionDto)
@@ -184,7 +184,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return Created($"/api/templates/{id}/questions", result.GetResult<QuestionDto>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPut("{templateId}/questions/{questionId}")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> UpdateQuestion(Guid templateId, Guid questionId, [FromBody] QuestionForUpdateDto questionDto)
@@ -200,7 +200,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpDelete("{templateId}/questions/{questionId}")]
     public async Task<IActionResult> DeleteQuestion(Guid templateId, Guid questionId)
     {
@@ -215,7 +215,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPost("{id}/questions/reorder")]
     public async Task<IActionResult> ReorderQuestions(Guid id, [FromBody] List<Guid> questionIds)
     {

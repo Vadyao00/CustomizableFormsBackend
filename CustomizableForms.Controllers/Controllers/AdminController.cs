@@ -1,7 +1,6 @@
 ﻿using Contracts.IServices;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Domain.DTOs;
-using CustomizableForms.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ namespace CustomizableForms.Controllers.Controllers;
 
 [Route("api/admin")]
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin", Policy = "NotBlockedUserPolicy")]
 public class AdminController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor)
     : ApiControllerBase(serviceManager, httpContextAccessor)
 {

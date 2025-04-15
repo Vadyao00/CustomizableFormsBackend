@@ -23,7 +23,7 @@ public class CommentController(IServiceManager serviceManager, IHttpContextAcces
         return Ok(result.GetResult<IEnumerable<CommentDto>>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPost]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> AddComment(Guid templateId, [FromBody] CommentForCreationDto commentDto)
@@ -39,7 +39,7 @@ public class CommentController(IServiceManager serviceManager, IHttpContextAcces
         return Ok(result.GetResult<CommentDto>());
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPut("{commentId}")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> UpdateComment(Guid commentId, [FromBody] CommentForUpdateDto commentDto)
@@ -55,7 +55,7 @@ public class CommentController(IServiceManager serviceManager, IHttpContextAcces
         return NoContent();
     }
 
-    [Authorize]
+    [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpDelete("{commentId}")]
     public async Task<IActionResult> DeleteComment(Guid commentId)
     {

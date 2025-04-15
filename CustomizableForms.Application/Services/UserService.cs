@@ -20,9 +20,6 @@ public class UserService : IUserService
 
     public async Task<ApiBaseResponse> GetUserByEmailAsync(string email, User currentUser)
     {
-        if (!CheckUser(currentUser))
-            return new BadUserBadRequestResponse();
-        
         var existingUser = await _repositoryManager.User.GetUserByEmailAsync(email);
 
         if (existingUser == null)
@@ -47,9 +44,6 @@ public class UserService : IUserService
     
     public async Task<ApiBaseResponse> GetUserByIdAsync(Guid userId, User currentUser)
     {
-        if (!CheckUser(currentUser))
-            return new BadUserBadRequestResponse();
-        
         var existingUser = await _repositoryManager.User.GetUserByIdAsync(userId, trackChanges: false);
 
         if (existingUser == null)
@@ -67,9 +61,6 @@ public class UserService : IUserService
     
     public async Task<ApiBaseResponse> DeleteUserAsync(Guid id, User currentUser)
     {
-        if (!CheckUser(currentUser))
-            return new BadUserBadRequestResponse();
-        
         var user = await _repositoryManager.User.GetUserByIdAsync(id, trackChanges: false);
         if (user != null)
         {
@@ -86,9 +77,6 @@ public class UserService : IUserService
     
     public async Task<ApiBaseResponse> GetAllUsersAsync(User currentUser)
     {
-        if (!CheckUser(currentUser))
-            return new BadUserBadRequestResponse();
-        
         var currentUserRoles = await _repositoryManager.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
         if (!currentUserRoles.Any(r => r.Name == "Admin"))
         {
@@ -113,9 +101,6 @@ public class UserService : IUserService
     
     public async Task<ApiBaseResponse> BlockUserAsync(Guid userId, User currentUser)
     {
-        if (!CheckUser(currentUser))
-            return new BadUserBadRequestResponse();
-        
         var currentUserRoles = await _repositoryManager.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
         if (!currentUserRoles.Any(r => r.Name == "Admin"))
         {
@@ -142,9 +127,6 @@ public class UserService : IUserService
     
     public async Task<ApiBaseResponse> UnblockUserAsync(Guid userId, User currentUser)
     {
-        if (!CheckUser(currentUser))
-            return new BadUserBadRequestResponse();
-        
         var currentUserRoles = await _repositoryManager.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
         if (!currentUserRoles.Any(r => r.Name == "Admin"))
         {
@@ -162,15 +144,5 @@ public class UserService : IUserService
         await _repositoryManager.SaveAsync();
         
         return new ApiOkResponse<bool>(true);
-    }
-    
-    private bool CheckUser(User? user)
-    {
-        if (user == null || !user.IsActive)
-        {
-            return false;
-        }
-
-        return true;
     }
 }

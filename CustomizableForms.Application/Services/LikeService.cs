@@ -14,11 +14,6 @@ public class LikeService(IRepositoryManager repository, ILoggerManager logger, I
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var template = await repository.Template.GetTemplateByIdAsync(templateId, trackChanges: false);
             if (template == null)
             {
@@ -72,11 +67,6 @@ public class LikeService(IRepositoryManager repository, ILoggerManager logger, I
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var template = await repository.Template.GetTemplateByIdAsync(templateId, trackChanges: false);
             if (template == null)
             {
@@ -131,11 +121,6 @@ public class LikeService(IRepositoryManager repository, ILoggerManager logger, I
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var template = await repository.Template.GetTemplateByIdAsync(templateId, trackChanges: false);
             if (template == null)
             {

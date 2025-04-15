@@ -26,11 +26,6 @@ public class FormService : IFormService
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var forms = await _repository.Form.GetUserFormsAsync(currentUser.Id, trackChanges: false);
             var formsDto = _mapper.Map<IEnumerable<FormDto>>(forms);
 
@@ -54,11 +49,8 @@ public class FormService : IFormService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (template.CreatorId != currentUser.Id && !isAdmin)
             {
@@ -88,11 +80,8 @@ public class FormService : IFormService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (form.UserId != currentUser.Id && form.Template.CreatorId != currentUser.Id && !isAdmin)
             {
@@ -113,11 +102,6 @@ public class FormService : IFormService
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var template = await _repository.Template.GetTemplateByIdAsync(templateId, trackChanges: false);
             if (template == null)
             {
@@ -219,11 +203,8 @@ public class FormService : IFormService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (form.UserId != currentUser.Id && !isAdmin)
             {
@@ -304,11 +285,8 @@ public class FormService : IFormService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (form.UserId != currentUser.Id && form.Template.CreatorId != currentUser.Id && !isAdmin)
             {
@@ -338,11 +316,8 @@ public class FormService : IFormService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             // Only the template creator or admins can view results aggregation
             if (template.CreatorId != currentUser.Id && !isAdmin)

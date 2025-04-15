@@ -10,7 +10,7 @@ namespace CustomizableForms.Controllers.Controllers;
 
 [Route("api/forms")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "NotBlockedUserPolicy")]
 public class FormController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor)
     : ApiControllerBase(serviceManager, httpContextAccessor)
 {

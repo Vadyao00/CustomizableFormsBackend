@@ -63,7 +63,7 @@ public class TemplateService : ITemplateService
                 return new ApiBadRequestResponse("Template not found");
             }
 
-            if (!template.IsPublic && currentUser == null)
+            if (!template.IsPublic)
             {
                 return new ApiBadRequestResponse("You do not have permission to view this template");
             }
@@ -123,11 +123,8 @@ public class TemplateService : ITemplateService
         try
         {
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (currentUser.Id != userId && !isAdmin)
             {
@@ -150,11 +147,6 @@ public class TemplateService : ITemplateService
     {
         try
         {
-            if (currentUser == null)
-            {
-                return new ApiBadRequestResponse("User not found");
-            }
-
             var templates = await _repository.Template.GetAccessibleTemplatesAsync(currentUser.Id, trackChanges: false);
             var templatesDto = _mapper.Map<IEnumerable<TemplateDto>>(templates);
 
@@ -306,11 +298,8 @@ public class TemplateService : ITemplateService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (template.CreatorId != currentUser.Id && !isAdmin)
             {
@@ -406,11 +395,8 @@ public class TemplateService : ITemplateService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (template.CreatorId != currentUser.Id && !isAdmin)
             {
@@ -445,11 +431,8 @@ public class TemplateService : ITemplateService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (!template.IsPublic && currentUser != null && 
                 template.CreatorId != currentUser.Id && 
@@ -509,11 +492,8 @@ public class TemplateService : ITemplateService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (template.CreatorId != currentUser.Id && !isAdmin)
             {
@@ -562,11 +542,8 @@ public class TemplateService : ITemplateService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (template.CreatorId != currentUser.Id && !isAdmin)
             {
@@ -606,11 +583,8 @@ public class TemplateService : ITemplateService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (template.CreatorId != currentUser.Id && !isAdmin)
             {
@@ -646,11 +620,8 @@ public class TemplateService : ITemplateService
             }
 
             bool isAdmin = false;
-            if (currentUser != null)
-            {
-                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-            }
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
 
             if (template.CreatorId != currentUser.Id && !isAdmin)
             {

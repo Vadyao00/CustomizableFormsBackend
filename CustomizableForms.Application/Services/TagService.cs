@@ -27,7 +27,6 @@ public class TagService : ITagService
             var tags = await _repository.Tag.GetAllTagsAsync(trackChanges: false);
             var tagsDto = _mapper.Map<IEnumerable<TagDto>>(tags);
 
-            // Add template count to each tag
             foreach (var tagDto in tagsDto)
             {
                 var tag = tags.FirstOrDefault(t => t.Id == tagDto.Id);
@@ -53,7 +52,6 @@ public class TagService : ITagService
             var tags = await _repository.Tag.SearchTagsAsync(searchTerm, trackChanges: false);
             var tagsDto = _mapper.Map<IEnumerable<TagDto>>(tags);
 
-            // Add template count to each tag
             foreach (var tagDto in tagsDto)
             {
                 var tag = tags.FirstOrDefault(t => t.Id == tagDto.Id);
@@ -106,7 +104,6 @@ public class TagService : ITagService
                 return new ApiBadRequestResponse("Tag not found");
             }
 
-            // Get all templates with this tag that are public
             var templates = await _repository.Template.GetPublicTemplatesAsync(trackChanges: false);
             var templatesWithTag = templates
                 .Where(t => t.TemplateTags != null && t.TemplateTags.Any(tt => tt.TagId == tag.Id))
@@ -114,7 +111,6 @@ public class TagService : ITagService
 
             var templatesDto = _mapper.Map<IEnumerable<TemplateDto>>(templatesWithTag);
 
-            // Add extra aggregated data
             foreach (var templateDto in templatesDto)
             {
                 var template = templatesWithTag.FirstOrDefault(t => t.Id == templateDto.Id);
@@ -124,7 +120,6 @@ public class TagService : ITagService
                     templateDto.CommentsCount = template.Comments?.Count ?? 0;
                     templateDto.FormsCount = template.Forms?.Count ?? 0;
                     
-                    // Extract tags
                     if (template.TemplateTags != null)
                     {
                         templateDto.Tags = template.TemplateTags
