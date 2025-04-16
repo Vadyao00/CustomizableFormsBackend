@@ -17,11 +17,20 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
     [HttpGet]
     public async Task<IActionResult> GetTemplates()
     {
-        var baseResult = await _serviceManager.TemplateService.GetPublicTemplatesAsync();
-        if (!baseResult.Success)
-            return ProccessError(baseResult);
-
-        return Ok(baseResult.GetResult<IEnumerable<TemplateDto>>());
+        var currentUser = await GetCurrentUserAsync();
+        if (currentUser is null)
+        {
+            var baseResult = await _serviceManager.TemplateService.GetPublicTemplatesAsync();
+            if (!baseResult.Success)
+                return ProccessError(baseResult);
+            
+            return Ok(baseResult.GetResult<IEnumerable<TemplateDto>>());
+        }
+        var result = await _serviceManager.TemplateService.GetAllowedTemplatesAsync(currentUser);
+        if (!result.Success)
+            return ProccessError(result);
+            
+        return Ok(result.GetResult<IEnumerable<TemplateDto>>());
     }
 
     [HttpGet("search")]

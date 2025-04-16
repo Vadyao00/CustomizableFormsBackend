@@ -21,22 +21,6 @@ public class TemplateService : ITemplateService
         _mapper = mapper;
     }
 
-    public async Task<ApiBaseResponse> GetAllTemplatesAsync()
-    {
-        try
-        {
-            var templates = await _repository.Template.GetAllTemplatesAsync(trackChanges: false);
-            var templatesDto = _mapper.Map<IEnumerable<TemplateDto>>(templates);
-
-            return new ApiOkResponse<IEnumerable<TemplateDto>>(templatesDto);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error in {nameof(GetAllTemplatesAsync)}: {ex.Message}");
-            return new ApiBadRequestResponse($"Error retrieving templates: {ex.Message}");
-        }
-    }
-
     public async Task<ApiBaseResponse> GetPublicTemplatesAsync()
     {
         try
@@ -53,6 +37,26 @@ public class TemplateService : ITemplateService
         }
     }
 
+    public async Task<ApiBaseResponse> GetAllowedTemplatesAsync(User currentUser)
+    {
+        try
+        {
+            bool isAdmin = false;
+            var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
+            
+            var templates = await _repository.Template.GetAllowedTemplatesAsync(currentUser, isAdmin, trackChanges: false);
+            var templatesDto = _mapper.Map<IEnumerable<TemplateDto>>(templates);
+
+            return new ApiOkResponse<IEnumerable<TemplateDto>>(templatesDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error in {nameof(GetAllowedTemplatesAsync)}: {ex.Message}");
+            return new ApiBadRequestResponse($"Error retrieving allowed templates: {ex.Message}");
+        }
+    }
+
     public async Task<ApiBaseResponse> GetTemplateByIdAsync(Guid templateId, User currentUser)
     {
         try
@@ -61,11 +65,6 @@ public class TemplateService : ITemplateService
             if (template == null)
             {
                 return new ApiBadRequestResponse("Template not found");
-            }
-
-            if (!template.IsPublic)
-            {
-                return new ApiBadRequestResponse("You do not have permission to view this template");
             }
 
             bool isAdmin = false;

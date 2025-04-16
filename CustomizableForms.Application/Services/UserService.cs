@@ -18,7 +18,7 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public async Task<ApiBaseResponse> GetUserByEmailAsync(string email, User currentUser)
+    public async Task<ApiBaseResponse> GetUserByEmailAsync(string email)
     {
         var existingUser = await _repositoryManager.User.GetUserByEmailAsync(email);
 
@@ -30,19 +30,7 @@ public class UserService : IUserService
         return new ApiOkResponse<User>(existingUser);
     }
     
-    public async Task<ApiBaseResponse> GetUserByEmailWithoutCurrentUserAsync(string email)
-    {
-        var existingUser = await _repositoryManager.User.GetUserByEmailAsync(email);
-
-        if (existingUser == null)
-        {
-            return new InvalidEmailBadRequestResponse();
-        }
-        
-        return new ApiOkResponse<User>(existingUser);
-    }
-    
-    public async Task<ApiBaseResponse> GetUserByIdAsync(Guid userId, User currentUser)
+    public async Task<ApiBaseResponse> GetUserByIdAsync(Guid userId)
     {
         var existingUser = await _repositoryManager.User.GetUserByIdAsync(userId, trackChanges: false);
 
@@ -59,7 +47,7 @@ public class UserService : IUserService
         return await _repositoryManager.User.GetUserByIdAsync(userId, trackChanges: false);
     }
     
-    public async Task<ApiBaseResponse> DeleteUserAsync(Guid id, User currentUser)
+    public async Task<ApiBaseResponse> DeleteUserAsync(Guid id)
     {
         var user = await _repositoryManager.User.GetUserByIdAsync(id, trackChanges: false);
         if (user != null)
@@ -75,14 +63,8 @@ public class UserService : IUserService
         return new ApiOkResponse<User>(user);
     }
     
-    public async Task<ApiBaseResponse> GetAllUsersAsync(User currentUser)
+    public async Task<ApiBaseResponse> GetAllUsersAsync()
     {
-        var currentUserRoles = await _repositoryManager.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-        if (!currentUserRoles.Any(r => r.Name == "Admin"))
-        {
-            return new ApiBadRequestResponse("You do not have permission to view all users");
-        }
-        
         var users = await _repositoryManager.User.GetAllUsersAsync(trackChanges: false);
         var usersDto = _mapper.Map<IEnumerable<UserDto>>(users);
         
@@ -101,12 +83,6 @@ public class UserService : IUserService
     
     public async Task<ApiBaseResponse> BlockUserAsync(Guid userId, User currentUser)
     {
-        var currentUserRoles = await _repositoryManager.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-        if (!currentUserRoles.Any(r => r.Name == "Admin"))
-        {
-            return new ApiBadRequestResponse("You do not have permission to block users");
-        }
-        
         var user = await _repositoryManager.User.GetUserByIdAsync(userId, trackChanges: true);
         if (user == null)
         {
@@ -125,14 +101,8 @@ public class UserService : IUserService
         return new ApiOkResponse<bool>(true);
     }
     
-    public async Task<ApiBaseResponse> UnblockUserAsync(Guid userId, User currentUser)
+    public async Task<ApiBaseResponse> UnblockUserAsync(Guid userId)
     {
-        var currentUserRoles = await _repositoryManager.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
-        if (!currentUserRoles.Any(r => r.Name == "Admin"))
-        {
-            return new ApiBadRequestResponse("You do not have permission to unblock users");
-        }
-        
         var user = await _repositoryManager.User.GetUserByIdAsync(userId, trackChanges: true);
         if (user == null)
         {

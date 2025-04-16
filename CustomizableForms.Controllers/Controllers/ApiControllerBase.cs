@@ -64,10 +64,10 @@ public class ApiControllerBase : Controller
             BlockedUserBadRequestResponse response => new ObjectResult(new ErrorDetails
             {
                 Message = response.Message,
-                StatusCode = StatusCodes.Status403Forbidden
+                StatusCode = StatusCodes.Status400BadRequest
             })
             {
-                StatusCode = StatusCodes.Status403Forbidden
+                StatusCode = StatusCodes.Status400BadRequest
             },
             InvalidEmailBadRequestResponse response => Conflict(new ErrorDetails
             {

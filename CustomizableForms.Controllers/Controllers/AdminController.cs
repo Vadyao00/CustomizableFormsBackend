@@ -20,7 +20,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.UserService.GetAllUsersAsync(currentUser);
+        var baseResult = await _serviceManager.UserService.GetAllUsersAsync();
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -48,7 +48,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.UserService.UnblockUserAsync(userId, currentUser);
+        var baseResult = await _serviceManager.UserService.UnblockUserAsync(userId);
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -62,7 +62,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.RoleService.AssignRoleToUserAsync(userId, "Admin", currentUser);
+        var baseResult = await _serviceManager.RoleService.AssignRoleToUserAsync(userId, "Admin");
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -76,7 +76,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.RoleService.RemoveRoleFromUserAsync(userId, "Admin", currentUser);
+        var baseResult = await _serviceManager.RoleService.RemoveRoleFromUserAsync(userId, "Admin");
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -90,7 +90,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.UserService.DeleteUserAsync(userId, currentUser);
+        var baseResult = await _serviceManager.UserService.DeleteUserAsync(userId);
         if (!baseResult.Success)
             return ProccessError(baseResult);
 

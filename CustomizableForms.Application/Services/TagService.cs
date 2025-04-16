@@ -2,6 +2,7 @@
 using Contracts.IRepositories;
 using Contracts.IServices;
 using CustomizableForms.Domain.DTOs;
+using CustomizableForms.Domain.Entities;
 using CustomizableForms.Domain.Responses;
 using CustomizableForms.LoggerService;
 
@@ -94,7 +95,7 @@ public class TagService : ITagService
         }
     }
 
-    public async Task<ApiBaseResponse> GetTemplatesByTagAsync(string tagName)
+    public async Task<ApiBaseResponse> GetTemplatesByTagAsync(string tagName, User currentUser)
     {
         try
         {
@@ -104,10 +105,28 @@ public class TagService : ITagService
                 return new ApiBadRequestResponse("Tag not found");
             }
 
-            var templates = await _repository.Template.GetPublicTemplatesAsync(trackChanges: false);
-            var templatesWithTag = templates
-                .Where(t => t.TemplateTags != null && t.TemplateTags.Any(tt => tt.TagId == tag.Id))
-                .ToList();
+            IEnumerable<Template> templates;
+            List<Template> templatesWithTag;
+            
+            if (currentUser is not null)
+            {
+                bool isAdmin = false;
+                var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
+                isAdmin = userRoles.Any(r => r.Name == "Admin");
+
+                templates = await _repository.Template.GetAllowedTemplatesAsync(currentUser, isAdmin, trackChanges: false);
+                templatesWithTag = templates
+                    .Where(t => t.TemplateTags != null && t.TemplateTags.Any(tt => tt.TagId == tag.Id))
+                    .ToList();    
+            }
+            else
+            {
+                templates = await _repository.Template.GetPublicTemplatesAsync(trackChanges: false);
+                templatesWithTag = templates
+                    .Where(t => t.TemplateTags != null && t.TemplateTags.Any(tt => tt.TagId == tag.Id))
+                    .ToList();   
+            }
+            
 
             var templatesDto = _mapper.Map<IEnumerable<TemplateDto>>(templatesWithTag);
 

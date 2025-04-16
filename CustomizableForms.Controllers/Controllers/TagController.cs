@@ -44,7 +44,9 @@ public class TagController(IServiceManager serviceManager, IHttpContextAccessor 
     [HttpGet("{tagName}/templates")]
     public async Task<IActionResult> GetTemplatesByTag(string tagName)
     {
-        var result = await _serviceManager.TagService.GetTemplatesByTagAsync(tagName);
+        var currentUser = await GetCurrentUserAsync();
+        
+        var result = await _serviceManager.TagService.GetTemplatesByTagAsync(tagName, currentUser);
         if (!result.Success)
             return ProccessError(result);
 

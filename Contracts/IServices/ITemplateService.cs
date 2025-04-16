@@ -6,8 +6,8 @@ namespace Contracts.IServices;
 
 public interface ITemplateService
 {
-    Task<ApiBaseResponse> GetAllTemplatesAsync();
     Task<ApiBaseResponse> GetPublicTemplatesAsync();
+    Task<ApiBaseResponse> GetAllowedTemplatesAsync(User currentUser);
     Task<ApiBaseResponse> GetTemplateByIdAsync(Guid templateId, User currentUser);
     Task<ApiBaseResponse> GetTemplateByIdWithoutTokenAsync(Guid templateId);
     Task<ApiBaseResponse> GetUserTemplatesAsync(Guid userId, User currentUser);

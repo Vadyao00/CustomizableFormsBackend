@@ -4,8 +4,8 @@ namespace Contracts.IRepositories;
 
 public interface ITemplateRepository
 {
-    Task<IEnumerable<Template>> GetAllTemplatesAsync(bool trackChanges);
     Task<IEnumerable<Template>> GetPublicTemplatesAsync(bool trackChanges);
+    Task<IEnumerable<Template>> GetAllowedTemplatesAsync(User currentUser, bool isAdmin, bool trackChanges);
     Task<IEnumerable<Template>> GetUserTemplatesAsync(Guid userId, bool trackChanges);
     Task<IEnumerable<Template>> GetAccessibleTemplatesAsync(Guid userId, bool trackChanges);
     Task<IEnumerable<Template>> GetPopularTemplatesAsync(int count, bool trackChanges);

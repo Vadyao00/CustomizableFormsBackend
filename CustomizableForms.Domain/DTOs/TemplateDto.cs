@@ -15,4 +15,5 @@ public record TemplateDto
     public int CommentsCount { get; set; }
     public int FormsCount { get; set; }
     public List<string> Tags { get; set; }
+    public List<string> AllowedUsers { get; set; }
 }

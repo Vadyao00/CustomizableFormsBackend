@@ -4,7 +4,6 @@ using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Domain.Entities;
 using CustomizableForms.Domain.Requirements;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 
 namespace CustomizableForms.Controllers.Filters;
 
@@ -17,7 +16,7 @@ public class NotBlockedUserRequirementHandler(IServiceManager serviceManager)
         if (string.IsNullOrEmpty(userEmail))
             return;
 
-        var baseResponse = await serviceManager.UserService.GetUserByEmailWithoutCurrentUserAsync(userEmail);
+        var baseResponse = await serviceManager.UserService.GetUserByEmailAsync(userEmail);
         var user = baseResponse.GetResult<User>();
         if (user != null && user.IsActive)
         {

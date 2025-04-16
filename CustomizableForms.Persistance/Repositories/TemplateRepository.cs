@@ -10,17 +10,6 @@ public class TemplateRepository : RepositoryBase<Template>, ITemplateRepository
     {
     }
 
-    public async Task<IEnumerable<Template>> GetAllTemplatesAsync(bool trackChanges)
-    {
-        return await FindAll(trackChanges)
-            .Include(t => t.Creator)
-            .Include(t => t.Forms)
-            .Include(t => t.TemplateTags)
-                .ThenInclude(tt => tt.Tag)
-            .OrderByDescending(t => t.CreatedAt)
-            .ToListAsync();
-    }
-
     public async Task<IEnumerable<Template>> GetPublicTemplatesAsync(bool trackChanges)
     {
         return await FindByCondition(t => t.IsPublic, trackChanges)
@@ -28,6 +17,23 @@ public class TemplateRepository : RepositoryBase<Template>, ITemplateRepository
             .Include(t => t.Forms)
             .Include(t => t.TemplateTags)
                 .ThenInclude(tt => tt.Tag)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Template>> GetAllowedTemplatesAsync(User currentUser, bool isAdmin, bool trackChanges)
+    {
+        return await FindByCondition(t => 
+                t.IsPublic ||
+                (currentUser != null &&
+                    (t.CreatorId == currentUser.Id ||
+                     t.AllowedUsers.Any(au => au.UserId == currentUser.Id) ||
+                     isAdmin)),
+                trackChanges)
+            .Include(t => t.Creator)
+            .Include(t => t.Forms)
+            .Include(t => t.TemplateTags)
+            .ThenInclude(tt => tt.Tag)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
     }
