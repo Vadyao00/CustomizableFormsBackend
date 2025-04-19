@@ -16,4 +16,5 @@ public record TemplateDto
     public int FormsCount { get; set; }
     public List<string> Tags { get; set; }
     public List<string> AllowedUsers { get; set; }
+    public List<string> AllowedUsersNames { get; set; }
 }

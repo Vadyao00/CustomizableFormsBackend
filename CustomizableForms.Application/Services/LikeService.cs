@@ -48,11 +48,6 @@ public class LikeService(IRepositoryManager repository, ILoggerManager logger, I
 
             repository.Like.CreateLike(like);
             await repository.SaveAsync();
-
-            var likesCount = await repository.Like.GetTemplateLikesCountAsync(templateId);
-
-            await hubContext.Clients.Group(templateId.ToString())
-                .SendAsync("UpdateLikes", likesCount);
             
             return new ApiOkResponse<bool>(true);
         }
@@ -81,11 +76,6 @@ public class LikeService(IRepositoryManager repository, ILoggerManager logger, I
 
             repository.Like.DeleteLike(like);
             await repository.SaveAsync();
-
-            var likesCount = await repository.Like.GetTemplateLikesCountAsync(templateId);
-                
-            await hubContext.Clients.Group(templateId.ToString())
-                .SendAsync("UpdateLikes", likesCount);
             
             return new ApiOkResponse<bool>(true);
         }

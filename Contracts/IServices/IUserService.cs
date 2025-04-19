@@ -12,4 +12,5 @@ public interface IUserService
     Task<ApiBaseResponse> GetAllUsersAsync();
     Task<ApiBaseResponse> BlockUserAsync(Guid userId, User currentUser);
     Task<ApiBaseResponse> UnblockUserAsync(Guid userId);
+    Task<ApiBaseResponse> UpdateUIUserAsync(string prefTheme, string prefLang, User currentUser);
 }

@@ -113,7 +113,9 @@ public sealed class AuthenticationService : IAuthenticationService
         {
             new Claim(ClaimTypes.Name, _user.Name),
             new Claim(ClaimTypes.Email, _user.Email),
-            new Claim(ClaimTypes.NameIdentifier, _user.Id.ToString())
+            new Claim(ClaimTypes.NameIdentifier, _user.Id.ToString()),
+            new Claim("PreferredLanguage", _user.PreferredLanguage),
+            new Claim("PreferredTheme", _user.PreferredTheme) 
         };
         
         var userRoles = await _manager.Role.GetUserRolesAsync(_user.Id, trackChanges: false);
@@ -158,7 +160,7 @@ public sealed class AuthenticationService : IAuthenticationService
             ValidateIssuer = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfiguration.Secret)),
-            ValidateLifetime = true,
+            ValidateLifetime = false,
             ValidIssuer = _jwtConfiguration.ValidIssuer,
             ValidAudience = _jwtConfiguration.ValidAudience
         };

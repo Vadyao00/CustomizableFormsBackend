@@ -29,6 +29,12 @@ public class MappingProfile : Profile
                         .Where(name => !string.IsNullOrEmpty(name))
                         .ToList()
                     : new List<string>()))
+            .ForMember(dest => dest.AllowedUsersNames, opt => opt.MapFrom(src =>
+                src.AllowedUsers != null
+                    ? src.AllowedUsers.Select(ta => ta.User != null ? ta.User.Name : null)
+                        .Where(name => !string.IsNullOrEmpty(name))
+                        .ToList()
+                    : new List<string>()))
             .ForMember(dest => dest.LikesCount, opt => opt.MapFrom(src => 
                 src.Likes != null ? src.Likes.Count : 0))
             .ForMember(dest => dest.CommentsCount, opt => opt.MapFrom(src => 

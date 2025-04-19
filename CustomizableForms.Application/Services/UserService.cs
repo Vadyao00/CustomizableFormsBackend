@@ -101,6 +101,18 @@ public class UserService : IUserService
         return new ApiOkResponse<bool>(true);
     }
     
+    public async Task<ApiBaseResponse> UpdateUIUserAsync(string prefTheme, string prefLang, User currentUser)
+    {
+        if(prefLang is not null)
+            currentUser.PreferredLanguage = prefLang;
+        if(prefTheme is not null)
+            currentUser.PreferredTheme = prefTheme;
+        _repositoryManager.User.UpdateUser(currentUser);
+        await _repositoryManager.SaveAsync();
+        
+        return new ApiOkResponse<bool>(true);
+    }
+    
     public async Task<ApiBaseResponse> UnblockUserAsync(Guid userId)
     {
         var user = await _repositoryManager.User.GetUserByIdAsync(userId, trackChanges: true);
