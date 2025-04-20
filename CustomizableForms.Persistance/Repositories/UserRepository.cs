@@ -1,5 +1,6 @@
 ﻿using Contracts.IRepositories;
 using CustomizableForms.Domain.Entities;
+using CustomizableForms.Domain.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomizableForms.Persistance.Repositories;
@@ -10,11 +11,17 @@ public class UserRepository : RepositoryBase<User>, IUserRepository
     {
     }
 
-    public async Task<IEnumerable<User>> GetAllUsersAsync(bool trackChanges)
+    public async Task<PagedList<User>> GetAllUsersAsync(UserParameters userParameters, bool trackChanges)
     {
-        return await FindAll(trackChanges)
+        var users = await FindAll(trackChanges)
             .OrderBy(u => u.Name)
+            .Skip((userParameters.PageNumber - 1) * userParameters.PageSize)
+            .Take(userParameters.PageSize)
             .ToListAsync();
+
+        var count = await FindAll(trackChanges).CountAsync();
+
+        return new PagedList<User>(users, count, userParameters.PageNumber, userParameters.PageSize);
     }
 
     public async Task<User?> GetUserByIdAsync(Guid userId, bool trackChanges)

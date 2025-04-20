@@ -1,5 +1,6 @@
 ﻿using CustomizableForms.Domain.DTOs;
 using CustomizableForms.Domain.Entities;
+using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 
 namespace Contracts.IServices;
@@ -10,8 +11,7 @@ public interface ITemplateService
     Task<ApiBaseResponse> GetAllowedTemplatesAsync(User currentUser);
     Task<ApiBaseResponse> GetTemplateByIdAsync(Guid templateId, User currentUser);
     Task<ApiBaseResponse> GetTemplateByIdWithoutTokenAsync(Guid templateId);
-    Task<ApiBaseResponse> GetUserTemplatesAsync(Guid userId, User currentUser);
-    Task<ApiBaseResponse> GetAccessibleTemplatesAsync(User currentUser);
+    Task<ApiBaseResponse> GetUserTemplatesAsync(TemplateParameters templateParameters, Guid userId, User currentUser);
     Task<ApiBaseResponse> GetPopularTemplatesAsync(int count);
     Task<ApiBaseResponse> GetRecentTemplatesAsync(int count);
     Task<ApiBaseResponse> SearchTemplatesAsync(string searchTerm);

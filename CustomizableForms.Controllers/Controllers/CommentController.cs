@@ -1,7 +1,10 @@
 ﻿using Contracts.IServices;
+using CustomizableForms.Application.Commands.CommentsCommands;
+using CustomizableForms.Application.Queries.CommentsQueries;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Controllers.Filters;
 using CustomizableForms.Domain.DTOs;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +13,13 @@ namespace CustomizableForms.Controllers.Controllers;
 
 [Route("api/templates/{templateId}/comments")]
 [ApiController]
-public class CommentController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor)
+public class CommentController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor, ISender sender)
     : ApiControllerBase(serviceManager, httpContextAccessor)
 {
     [HttpGet]
     public async Task<IActionResult> GetComments(Guid templateId)
     {
-        var result = await _serviceManager.CommentService.GetTemplateCommentsAsync(templateId);
+        var result = await sender.Send(new GetTemplateCommentsQuery(templateId));
         if (!result.Success)
             return ProccessError(result);
 
@@ -32,7 +35,7 @@ public class CommentController(IServiceManager serviceManager, IHttpContextAcces
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.CommentService.AddCommentAsync(templateId, commentDto, currentUser);
+        var result = await sender.Send(new AddCommentCommand(templateId, commentDto, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -48,7 +51,7 @@ public class CommentController(IServiceManager serviceManager, IHttpContextAcces
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.CommentService.UpdateCommentAsync(commentId, commentDto, currentUser);
+        var result = await sender.Send(new UpdateCommentCommand(commentId, commentDto, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -63,7 +66,7 @@ public class CommentController(IServiceManager serviceManager, IHttpContextAcces
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.CommentService.DeleteCommentAsync(commentId, currentUser);
+        var result = await sender.Send(new DeleteCommentCommand(commentId, currentUser));
         if (!result.Success)
             return ProccessError(result);
 

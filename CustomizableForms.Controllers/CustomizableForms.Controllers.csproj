@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Contracts\Contracts.csproj" />
+      <ProjectReference Include="..\CustomizableForms.Application\CustomizableForms.Application.csproj" />
       <ProjectReference Include="..\CustomizableForms.Domain\CustomizableForms.Domain.csproj" />
     </ItemGroup>
 
