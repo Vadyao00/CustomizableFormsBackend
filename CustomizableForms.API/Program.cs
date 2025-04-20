@@ -91,7 +91,7 @@ public class Program
             {
                 s.SwaggerEndpoint("/swagger/v1/swagger.json", "Cinema API v1");
             });
-
+            
             app.UseHttpsRedirection();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions

@@ -4,6 +4,7 @@ using Contracts.IServices;
 using CustomizableForms.Domain.DTOs;
 using CustomizableForms.Domain.Entities;
 using CustomizableForms.Domain.Enums;
+using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 using CustomizableForms.LoggerService;
 
@@ -22,14 +23,14 @@ public class FormService : IFormService
         _mapper = mapper;
     }
 
-    public async Task<ApiBaseResponse> GetUserFormsAsync(User currentUser)
+    public async Task<ApiBaseResponse> GetUserFormsAsync(FormParameters formParameters, User currentUser)
     {
         try
         {
-            var forms = await _repository.Form.GetUserFormsAsync(currentUser.Id, trackChanges: false);
+            var forms = await _repository.Form.GetUserFormsAsync(formParameters, currentUser.Id, trackChanges: false);
             var formsDto = _mapper.Map<IEnumerable<FormDto>>(forms);
 
-            return new ApiOkResponse<IEnumerable<FormDto>>(formsDto);
+            return new ApiOkResponse<(IEnumerable<FormDto>, MetaData)>((formsDto, forms.MetaData));
         }
         catch (Exception ex)
         {
@@ -38,7 +39,7 @@ public class FormService : IFormService
         }
     }
 
-    public async Task<ApiBaseResponse> GetTemplateFormsAsync(Guid templateId, User currentUser)
+    public async Task<ApiBaseResponse> GetTemplateFormsAsync(FormParameters formParameters, Guid templateId, User currentUser)
     {
         try
         {
@@ -57,10 +58,10 @@ public class FormService : IFormService
                 return new ApiBadRequestResponse("You do not have permission to view these forms");
             }
 
-            var forms = await _repository.Form.GetTemplateFormsAsync(templateId, trackChanges: false);
+            var forms = await _repository.Form.GetTemplateFormsAsync(formParameters, templateId, trackChanges: false);
             var formsDto = _mapper.Map<IEnumerable<FormDto>>(forms);
 
-            return new ApiOkResponse<IEnumerable<FormDto>>(formsDto);
+            return new ApiOkResponse<(IEnumerable<FormDto>, MetaData)>((formsDto, forms.MetaData));
         }
         catch (Exception ex)
         {
@@ -319,13 +320,12 @@ public class FormService : IFormService
             var userRoles = await _repository.Role.GetUserRolesAsync(currentUser.Id, trackChanges: false);
             isAdmin = userRoles.Any(r => r.Name == "Admin");
 
-            // Only the template creator or admins can view results aggregation
             if (template.CreatorId != currentUser.Id && !isAdmin)
             {
                 return new ApiBadRequestResponse("You do not have permission to view these results");
             }
 
-            var forms = await _repository.Form.GetTemplateFormsAsync(templateId, trackChanges: false);
+            var forms = await _repository.Form.GetAllTemplateFormsAsync(templateId, trackChanges: false);
             var questions = await _repository.Question.GetTemplateQuestionsAsync(templateId, trackChanges: false);
 
             var aggregation = new FormResultsAggregationDto
@@ -336,7 +336,6 @@ public class FormService : IFormService
                 QuestionResults = new List<QuestionResultDto>()
             };
 
-            // Process each question
             foreach (var question in questions.Where(q => q.ShowInResults))
             {
                 var questionResult = new QuestionResultDto
@@ -346,7 +345,6 @@ public class FormService : IFormService
                     Type = question.Type
                 };
 
-                // Get all answers for this question across all forms
                 var questionAnswers = forms
                     .SelectMany(f => f.Answers)
                     .Where(a => a.QuestionId == question.Id)

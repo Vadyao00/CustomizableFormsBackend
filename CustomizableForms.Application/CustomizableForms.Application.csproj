@@ -14,7 +14,28 @@
 
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="14.0.0" />
+      <PackageReference Include="MediatR" Version="12.5.0" />
       <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Commands\FormsCommands\" />
+      <Folder Include="Commands\LikesCommands\" />
+      <Folder Include="Commands\RolesCommands\" />
+      <Folder Include="Commands\TagsCommands\" />
+      <Folder Include="Commands\TemplateCommands\" />
+      <Folder Include="Commands\UsersCommands\" />
+      <Folder Include="Handlers\FormsHandlers\" />
+      <Folder Include="Handlers\LikesHandlers\" />
+      <Folder Include="Handlers\RolesHandlers\" />
+      <Folder Include="Handlers\TagsHandlers\" />
+      <Folder Include="Handlers\TemplatesHandlers\" />
+      <Folder Include="Handlers\UsersHandlers\" />
+      <Folder Include="Queries\LikesQueries\" />
+      <Folder Include="Queries\RolesQueries\" />
+      <Folder Include="Queries\TagsQueries\" />
+      <Folder Include="Queries\TemplatesQueries\" />
+      <Folder Include="Queries\UsersQueries\" />
     </ItemGroup>
 
 </Project>

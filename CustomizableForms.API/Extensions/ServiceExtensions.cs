@@ -18,11 +18,12 @@ public static class ServiceExtensions
         services.AddCors(options =>
         {
             options.AddPolicy("CorsPolicy", builder =>
-            builder
-                .WithOrigins("http://localhost:3000")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials());
+                builder
+                    .WithOrigins("http://localhost:3000")
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                    .AllowAnyHeader()
+                    .WithExposedHeaders("X-Pagination"));
         });
 
     public static void ConfigureDbContext(this IServiceCollection services, IConfiguration configuration) =>

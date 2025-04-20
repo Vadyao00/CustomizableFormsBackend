@@ -1,5 +1,6 @@
 ﻿using Contracts.IRepositories;
 using CustomizableForms.Domain.Entities;
+using CustomizableForms.Domain.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomizableForms.Persistance.Repositories;
@@ -10,16 +11,38 @@ public class FormRepository : RepositoryBase<Form>, IFormRepository
     {
     }
 
-    public async Task<IEnumerable<Form>> GetUserFormsAsync(Guid userId, bool trackChanges)
+    public async Task<PagedList<Form>> GetUserFormsAsync(FormParameters formParameters, Guid userId, bool trackChanges)
     {
-        return await FindByCondition(f => f.UserId == userId, trackChanges)
+        var forms =  await FindByCondition(f => f.UserId == userId, trackChanges)
             .Include(f => f.Template)
             .Include(f => f.User)
             .OrderByDescending(f => f.SubmittedAt)
+            .Skip((formParameters.PageNumber - 1) * formParameters.PageSize)
+            .Take(formParameters.PageSize)
             .ToListAsync();
+
+        var count = await FindByCondition(f => f.UserId == userId, trackChanges).CountAsync();
+
+        return new PagedList<Form>(forms, count, formParameters.PageNumber, formParameters.PageSize);
     }
 
-    public async Task<IEnumerable<Form>> GetTemplateFormsAsync(Guid templateId, bool trackChanges)
+    public async Task<PagedList<Form>> GetTemplateFormsAsync(FormParameters formParameters, Guid templateId, bool trackChanges)
+    {
+        var forms = await FindByCondition(f => f.TemplateId == templateId, trackChanges)
+            .Include(f => f.User)
+            .Include(f => f.Answers)
+            .ThenInclude(a => a.Question)
+            .OrderByDescending(f => f.SubmittedAt)
+            .Skip((formParameters.PageNumber - 1) * formParameters.PageSize)
+            .Take(formParameters.PageSize)
+            .ToListAsync();
+        
+        var count = await FindByCondition(f => f.TemplateId == templateId, trackChanges).CountAsync();
+
+        return new PagedList<Form>(forms, count, formParameters.PageNumber, formParameters.PageSize);
+    }
+    
+    public async Task<IEnumerable<Form>> GetAllTemplateFormsAsync(Guid templateId, bool trackChanges)
     {
         return await FindByCondition(f => f.TemplateId == templateId, trackChanges)
             .Include(f => f.User)

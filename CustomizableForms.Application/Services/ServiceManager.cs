@@ -26,8 +26,8 @@ public class ServiceManager(
         new TemplateService(repositoryManager, logger, mapper));
     private readonly Lazy<IFormService> _formService = new(() => 
         new FormService(repositoryManager, logger, mapper));
-    private readonly Lazy<ICommentService> _commentService = new(() => 
-        new CommentService(repositoryManager, logger, mapper, hubContext));
+    // private readonly Lazy<ICommentService> _commentService = new(() => 
+    //     new CommentService(repositoryManager, logger, mapper, hubContext));
     private readonly Lazy<ILikeService> _likeService = new(() => 
         new LikeService(repositoryManager, logger, hubContext));
     private readonly Lazy<ITagService> _tagService = new(() => 
@@ -38,7 +38,7 @@ public class ServiceManager(
     public IUserService UserService => _userService.Value;
     public ITemplateService TemplateService => _templateService.Value;
     public IFormService FormService => _formService.Value;
-    public ICommentService CommentService => _commentService.Value;
+    //public ICommentService CommentService => _commentService.Value;
     public ILikeService LikeService => _likeService.Value;
     public ITagService TagService => _tagService.Value;
     public IRoleService RoleService => _roleService.Value;

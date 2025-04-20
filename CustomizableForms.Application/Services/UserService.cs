@@ -3,6 +3,7 @@ using Contracts.IRepositories;
 using Contracts.IServices;
 using CustomizableForms.Domain.DTOs;
 using CustomizableForms.Domain.Entities;
+using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 
 namespace CustomizableForms.Application.Services;
@@ -63,9 +64,9 @@ public class UserService : IUserService
         return new ApiOkResponse<User>(user);
     }
     
-    public async Task<ApiBaseResponse> GetAllUsersAsync()
+    public async Task<ApiBaseResponse> GetAllUsersAsync(UserParameters userParameters)
     {
-        var users = await _repositoryManager.User.GetAllUsersAsync(trackChanges: false);
+        var users = await _repositoryManager.User.GetAllUsersAsync(userParameters, trackChanges: false);
         var usersDto = _mapper.Map<IEnumerable<UserDto>>(users);
         
         foreach (var userDto in usersDto)
@@ -78,7 +79,7 @@ public class UserService : IUserService
             }
         }
         
-        return new ApiOkResponse<IEnumerable<UserDto>>(usersDto);
+        return new ApiOkResponse<(IEnumerable<UserDto>, MetaData)>((usersDto, users.MetaData));
     }
     
     public async Task<ApiBaseResponse> BlockUserAsync(Guid userId, User currentUser)

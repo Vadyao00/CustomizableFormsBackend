@@ -1,10 +1,11 @@
 ﻿using Contracts.IServices;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Domain.DTOs;
+using CustomizableForms.Domain.RequestFeatures;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Text.Json;
 namespace CustomizableForms.Controllers.Controllers;
 
 [Route("api/admin")]
@@ -14,17 +15,17 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
     : ApiControllerBase(serviceManager, httpContextAccessor)
 {
     [HttpGet("users")]
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<IActionResult> GetAllUsers([FromQuery]UserParameters userParameters)
     {
-        var currentUser = await GetCurrentUserAsync();
-        if (currentUser == null)
-            return Unauthorized();
-
-        var baseResult = await _serviceManager.UserService.GetAllUsersAsync();
+        var baseResult = await _serviceManager.UserService.GetAllUsersAsync(userParameters);
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
-        return Ok(baseResult.GetResult<IEnumerable<UserDto>>());
+        var (users, metaData) = baseResult.GetResult<(IEnumerable<UserDto>, MetaData)>();
+
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(users);
     }
 
     [HttpPost("users/{userId}/block")]

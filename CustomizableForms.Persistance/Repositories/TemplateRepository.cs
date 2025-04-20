@@ -1,5 +1,6 @@
 ﻿using Contracts.IRepositories;
 using CustomizableForms.Domain.Entities;
+using CustomizableForms.Domain.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomizableForms.Persistance.Repositories;
@@ -38,28 +39,21 @@ public class TemplateRepository : RepositoryBase<Template>, ITemplateRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Template>> GetUserTemplatesAsync(Guid userId, bool trackChanges)
+    public async Task<PagedList<Template>> GetUserTemplatesAsync(TemplateParameters templateParameters, Guid userId, bool trackChanges)
     {
-        return await FindByCondition(t => t.CreatorId == userId, trackChanges)
+        var templates =  await FindByCondition(t => t.CreatorId == userId, trackChanges)
             .Include(t => t.Creator)
             .Include(t => t.Forms)
             .Include(t => t.TemplateTags)
                 .ThenInclude(tt => tt.Tag)
             .OrderByDescending(t => t.CreatedAt)
+            .Skip((templateParameters.PageNumber - 1) * templateParameters.PageSize)
+            .Take(templateParameters.PageSize)
             .ToListAsync();
-    }
 
-    public async Task<IEnumerable<Template>> GetAccessibleTemplatesAsync(Guid userId, bool trackChanges)
-    {
-        return await DbContext.Templates
-            .Where(t => t.IsPublic || t.CreatorId == userId || t.AllowedUsers.Any(au => au.UserId == userId))
-            .Include(t => t.Creator)
-            .Include(t => t.Forms)
-            .Include(t => t.TemplateTags)
-                .ThenInclude(tt => tt.Tag)
-            .OrderByDescending(t => t.CreatedAt)
-            .AsNoTracking()
-            .ToListAsync();
+        var count = await FindByCondition(t => t.CreatorId == userId, trackChanges).CountAsync();
+
+        return new PagedList<Template>(templates, count, templateParameters.PageNumber, templateParameters.PageSize);
     }
 
     public async Task<IEnumerable<Template>> GetPopularTemplatesAsync(int count, bool trackChanges)

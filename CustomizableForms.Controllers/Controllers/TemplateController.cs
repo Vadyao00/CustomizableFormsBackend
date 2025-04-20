@@ -1,7 +1,10 @@
-﻿using Contracts.IServices;
+﻿using System.Text.Json;
+using Contracts.IServices;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Controllers.Filters;
 using CustomizableForms.Domain.DTOs;
+using CustomizableForms.Domain.Entities;
+using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -85,32 +88,21 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
 
     [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpGet("my")]
-    public async Task<IActionResult> GetMyTemplates()
+    public async Task<IActionResult> GetMyTemplates([FromQuery]TemplateParameters templateParameters)
     {
         var currentUser = await GetCurrentUserAsync();
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.GetUserTemplatesAsync(currentUser.Id, currentUser);
+        var result = await _serviceManager.TemplateService.GetUserTemplatesAsync(templateParameters, currentUser.Id, currentUser);
         if (!result.Success)
             return ProccessError(result);
 
-        return Ok(result.GetResult<IEnumerable<TemplateDto>>());
-    }
-
-    [Authorize(Policy = "NotBlockedUserPolicy")]
-    [HttpGet("accessible")]
-    public async Task<IActionResult> GetAccessibleTemplates()
-    {
-        var currentUser = await GetCurrentUserAsync();
-        if (currentUser == null)
-            return Unauthorized();
-
-        var result = await _serviceManager.TemplateService.GetAccessibleTemplatesAsync(currentUser);
-        if (!result.Success)
-            return ProccessError(result);
-
-        return Ok(result.GetResult<IEnumerable<TemplateDto>>());
+        var (templates, metaData) = result.GetResult<(IEnumerable<TemplateDto>, MetaData)>();
+        
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(templates);
     }
 
     [Authorize(Policy = "NotBlockedUserPolicy")]

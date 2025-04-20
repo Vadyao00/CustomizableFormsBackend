@@ -3,6 +3,7 @@ using Contracts.IRepositories;
 using Contracts.IServices;
 using CustomizableForms.Domain.DTOs;
 using CustomizableForms.Domain.Entities;
+using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 using CustomizableForms.LoggerService;
 
@@ -117,7 +118,7 @@ public class TemplateService : ITemplateService
         }
     }
     
-    public async Task<ApiBaseResponse> GetUserTemplatesAsync(Guid userId, User currentUser)
+    public async Task<ApiBaseResponse> GetUserTemplatesAsync(TemplateParameters templateParameters, Guid userId, User currentUser)
     {
         try
         {
@@ -130,31 +131,15 @@ public class TemplateService : ITemplateService
                 return new ApiBadRequestResponse("You do not have permission to view these templates");
             }
 
-            var templates = await _repository.Template.GetUserTemplatesAsync(userId, trackChanges: false);
+            var templates = await _repository.Template.GetUserTemplatesAsync(templateParameters, userId, trackChanges: false);
             var templatesDto = _mapper.Map<IEnumerable<TemplateDto>>(templates);
 
-            return new ApiOkResponse<IEnumerable<TemplateDto>>(templatesDto);
+            return new ApiOkResponse<(IEnumerable<TemplateDto>, MetaData)>((templatesDto, templates.MetaData));
         }
         catch (Exception ex)
         {
             _logger.LogError($"Error in {nameof(GetUserTemplatesAsync)}: {ex.Message}");
             return new ApiBadRequestResponse($"Error retrieving user templates: {ex.Message}");
-        }
-    }
-
-    public async Task<ApiBaseResponse> GetAccessibleTemplatesAsync(User currentUser)
-    {
-        try
-        {
-            var templates = await _repository.Template.GetAccessibleTemplatesAsync(currentUser.Id, trackChanges: false);
-            var templatesDto = _mapper.Map<IEnumerable<TemplateDto>>(templates);
-
-            return new ApiOkResponse<IEnumerable<TemplateDto>>(templatesDto);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error in {nameof(GetAccessibleTemplatesAsync)}: {ex.Message}");
-            return new ApiBadRequestResponse($"Error retrieving accessible templates: {ex.Message}");
         }
     }
 

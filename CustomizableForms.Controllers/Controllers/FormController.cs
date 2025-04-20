@@ -1,7 +1,9 @@
-﻿using Contracts.IServices;
+﻿using System.Text.Json;
+using Contracts.IServices;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Controllers.Filters;
 using CustomizableForms.Domain.DTOs;
+using CustomizableForms.Domain.RequestFeatures;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,33 +15,41 @@ namespace CustomizableForms.Controllers.Controllers;
 [Authorize(Policy = "NotBlockedUserPolicy")]
 public class FormController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor)
     : ApiControllerBase(serviceManager, httpContextAccessor)
-{
+{ 
     [HttpGet("my")]
-    public async Task<IActionResult> GetMyForms()
+    public async Task<IActionResult> GetMyForms([FromQuery]FormParameters formParameters)
     {
         var currentUser = await GetCurrentUserAsync();
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.GetUserFormsAsync(currentUser);
+        var result = await _serviceManager.FormService.GetUserFormsAsync(formParameters, currentUser);
         if (!result.Success)
             return ProccessError(result);
 
-        return Ok(result.GetResult<IEnumerable<FormDto>>());
+        var (forms, metaData) = result.GetResult<(IEnumerable<FormDto>, MetaData)>();
+
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(forms);
     }
 
     [HttpGet("template/{templateId}")]
-    public async Task<IActionResult> GetTemplateForms(Guid templateId)
+    public async Task<IActionResult> GetTemplateForms(Guid templateId, [FromQuery]FormParameters formParameters)
     {
         var currentUser = await GetCurrentUserAsync();
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.GetTemplateFormsAsync(templateId, currentUser);
+        var result = await _serviceManager.FormService.GetTemplateFormsAsync(formParameters, templateId, currentUser);
         if (!result.Success)
             return ProccessError(result);
 
-        return Ok(result.GetResult<IEnumerable<FormDto>>());
+        var (forms, metaData) = result.GetResult<(IEnumerable<FormDto>, MetaData)>();
+
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(forms);
     }
 
     [HttpGet("{id}")]
