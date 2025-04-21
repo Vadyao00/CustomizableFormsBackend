@@ -19,7 +19,7 @@ public static class ServiceExtensions
         {
             options.AddPolicy("CorsPolicy", builder =>
                 builder
-                    .WithOrigins("http://localhost:3000")
+                    .WithOrigins("https://customizable-forms-frontend-new.vercel.app")
                     .AllowAnyMethod()
                     .AllowCredentials()
                     .AllowAnyHeader()
