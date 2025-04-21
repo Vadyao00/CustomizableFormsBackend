@@ -6,18 +6,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using CustomizableForms.Application.Commands.RolesCommands;
+using CustomizableForms.Application.Commands.UsersCommands;
+using CustomizableForms.Application.Queries.UsersQueries;
+using MediatR;
+
 namespace CustomizableForms.Controllers.Controllers;
 
 [Route("api/admin")]
 [ApiController]
 [Authorize(Roles = "Admin", Policy = "NotBlockedUserPolicy")]
-public class AdminController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor)
+public class AdminController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor, ISender sender)
     : ApiControllerBase(serviceManager, httpContextAccessor)
 {
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsers([FromQuery]UserParameters userParameters)
     {
-        var baseResult = await _serviceManager.UserService.GetAllUsersAsync(userParameters);
+        var baseResult = await sender.Send(new GetAllUsersQuery(userParameters));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -35,7 +40,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.UserService.BlockUserAsync(userId, currentUser);
+        var baseResult = await sender.Send(new BlockUserCommand(userId, currentUser));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -49,7 +54,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.UserService.UnblockUserAsync(userId);
+        var baseResult = await sender.Send(new UnblockUserCommand(userId));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -63,7 +68,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.RoleService.AssignRoleToUserAsync(userId, "Admin");
+        var baseResult = await sender.Send(new AssignRoleToUserCommand(userId, "Admin"));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -77,7 +82,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.RoleService.RemoveRoleFromUserAsync(userId, "Admin");
+        var baseResult = await sender.Send(new RemoveRoleFromUserCommand(userId, "Admin"));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -91,7 +96,7 @@ public class AdminController(IServiceManager serviceManager, IHttpContextAccesso
         if (currentUser == null)
             return Unauthorized();
 
-        var baseResult = await _serviceManager.UserService.DeleteUserAsync(userId);
+        var baseResult = await sender.Send(new DeleteUserCommand(userId));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 

@@ -1,11 +1,14 @@
 ﻿using System.Text.Json;
 using Contracts.IServices;
+using CustomizableForms.Application.Commands.TemplateCommands;
+using CustomizableForms.Application.Queries.TemplatesQueries;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Controllers.Filters;
 using CustomizableForms.Domain.DTOs;
 using CustomizableForms.Domain.Entities;
 using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +17,7 @@ namespace CustomizableForms.Controllers.Controllers;
 
 [Route("api/templates")]
 [ApiController]
-public class TemplateController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor) :
+public class TemplateController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor, ISender sender) :
     ApiControllerBase(serviceManager, httpContextAccessor)
 {
     [HttpGet]
@@ -23,13 +26,13 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         var currentUser = await GetCurrentUserAsync();
         if (currentUser is null)
         {
-            var baseResult = await _serviceManager.TemplateService.GetPublicTemplatesAsync();
+            var baseResult = await sender.Send(new GetPublicTemplatesQuery());
             if (!baseResult.Success)
                 return ProccessError(baseResult);
             
             return Ok(baseResult.GetResult<IEnumerable<TemplateDto>>());
         }
-        var result = await _serviceManager.TemplateService.GetAllowedTemplatesAsync(currentUser);
+        var result = await sender.Send(new GetAllowedTemplatesQuery(currentUser));
         if (!result.Success)
             return ProccessError(result);
             
@@ -39,7 +42,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
     [HttpGet("search")]
     public async Task<IActionResult> SearchTemplates([FromQuery] string searchTerm)
     {
-        var baseResult = await _serviceManager.TemplateService.SearchTemplatesAsync(searchTerm);
+        var baseResult = await sender.Send(new SearchTemplatesQuery(searchTerm));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -49,7 +52,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
     [HttpGet("popular/{count}")]
     public async Task<IActionResult> GetPopularTemplates(int count)
     {
-        var baseResult = await _serviceManager.TemplateService.GetPopularTemplatesAsync(count);
+        var baseResult = await sender.Send(new GetPopularTemplatesQuery(count));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -59,7 +62,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
     [HttpGet("recent/{count}")]
     public async Task<IActionResult> GetRecentTemplates(int count)
     {
-        var baseResult = await _serviceManager.TemplateService.GetRecentTemplatesAsync(count);
+        var baseResult = await sender.Send(new GetRecentTemplatesQuery(count));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
@@ -72,14 +75,14 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         var currentUser = await GetCurrentUserAsync();
         if (currentUser is null)
         {
-            var baseResult = await _serviceManager.TemplateService.GetTemplateByIdWithoutTokenAsync(id);
+            var baseResult = await sender.Send(new GetTemplateByIdWithoutTokenQuery(id));
             if (!baseResult.Success)
                 return ProccessError(baseResult);
 
             return Ok(baseResult.GetResult<TemplateDto>());
         }
 
-        var result = await _serviceManager.TemplateService.GetTemplateByIdAsync(id, currentUser);
+        var result = await sender.Send(new GetTemplateByIdQuery(id,currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -94,7 +97,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.GetUserTemplatesAsync(templateParameters, currentUser.Id, currentUser);
+        var result = await sender.Send(new GetUserTemplatesQuery(templateParameters, currentUser.Id, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -114,7 +117,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.CreateTemplateAsync(templateDto, currentUser);
+        var result = await sender.Send(new CreateTemplateCommand(templateDto, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -131,7 +134,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.UpdateTemplateAsync(id, templateDto, currentUser);
+        var result = await sender.Send(new UpdateTemplateCommand(id, templateDto, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -146,7 +149,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.DeleteTemplateAsync(id, currentUser);
+        var result = await sender.Send(new DeleteTemplateCommand(id, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -159,9 +162,9 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         var currentUser = await GetCurrentUserAsync();
         ApiBaseResponse result;
         if (currentUser is not null)
-            result = await _serviceManager.TemplateService.GetTemplateQuestionsAsync(id, currentUser);
+            result = await sender.Send(new GetTemplateQuestionsQuery(id, currentUser));
         else
-            result = await _serviceManager.TemplateService.GetTemplateQuestionsWithoutUserAsync(id);
+            result = await sender.Send(new GetTemplateQuestionsWithoutUserQuery(id));
         
         if (!result.Success)
             return ProccessError(result);
@@ -178,7 +181,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.AddQuestionToTemplateAsync(id, questionDto, currentUser);
+        var result = await sender.Send(new AddQuestionToTemplateCommand(id, questionDto, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -194,7 +197,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.UpdateQuestionAsync(templateId, questionId, questionDto, currentUser);
+        var result = await sender.Send(new UpdateQuestionCommand(templateId, questionId, questionDto, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -209,7 +212,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.DeleteQuestionAsync(templateId, questionId, currentUser);
+        var result = await sender.Send(new DeleteQuestionCommand(templateId, questionId, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -224,7 +227,7 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.TemplateService.ReorderQuestionsAsync(id, questionIds, currentUser);
+        var result = await sender.Send(new ReorderQuestionsCommand(id, questionIds, currentUser));
         if (!result.Success)
             return ProccessError(result);
 

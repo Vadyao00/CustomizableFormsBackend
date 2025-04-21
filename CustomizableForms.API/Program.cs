@@ -69,8 +69,8 @@ public class Program
               .AddApplicationPart(typeof(AssemblyReference).Assembly);
 
             
-            //services.AddMediatR(cfg =>
-                //cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly));
+            services.AddMediatR(cfg =>
+                cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly));
             services.AddAutoMapper(typeof(Program));
 
             services.AddAuthentication();

@@ -1,5 +1,8 @@
 ﻿using Contracts.IServices;
+using CustomizableForms.Application.Commands.LikesCommands;
+using CustomizableForms.Application.Queries.LikesQueries;
 using CustomizableForms.Controllers.Extensions;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,13 +11,13 @@ namespace CustomizableForms.Controllers.Controllers;
 
 [Route("api/templates/{templateId}/likes")]
 [ApiController]
-public class LikeController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor)
+public class LikeController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor, ISender sender)
     : ApiControllerBase(serviceManager, httpContextAccessor)
 {
     [HttpGet("count")]
     public async Task<IActionResult> GetLikesCount(Guid templateId)
     {
-        var result = await _serviceManager.LikeService.GetTemplateLikesCountAsync(templateId);
+        var result = await sender.Send(new GetTemplateLikesCountQuery(templateId));
         if (!result.Success)
             return ProccessError(result);
 
@@ -29,7 +32,7 @@ public class LikeController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.LikeService.HasUserLikedTemplateAsync(templateId, currentUser);
+        var result = await sender.Send(new HasUserLikedTemplateCommand(templateId, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -44,7 +47,7 @@ public class LikeController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.LikeService.LikeTemplateAsync(templateId, currentUser);
+        var result = await sender.Send(new LikeTemplateCommand(templateId, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -59,7 +62,7 @@ public class LikeController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.LikeService.UnlikeTemplateAsync(templateId, currentUser);
+        var result = await sender.Send(new UnlikeTemplateCommand(templateId, currentUser));
         if (!result.Success)
             return ProccessError(result);
 

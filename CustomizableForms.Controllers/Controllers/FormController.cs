@@ -1,9 +1,12 @@
 ﻿using System.Text.Json;
 using Contracts.IServices;
+using CustomizableForms.Application.Commands.FormsCommands;
+using CustomizableForms.Application.Queries.FormsQueries;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Controllers.Filters;
 using CustomizableForms.Domain.DTOs;
 using CustomizableForms.Domain.RequestFeatures;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +16,7 @@ namespace CustomizableForms.Controllers.Controllers;
 [Route("api/forms")]
 [ApiController]
 [Authorize(Policy = "NotBlockedUserPolicy")]
-public class FormController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor)
+public class FormController(IServiceManager serviceManager, IHttpContextAccessor httpContextAccessor, ISender sender)
     : ApiControllerBase(serviceManager, httpContextAccessor)
 { 
     [HttpGet("my")]
@@ -23,7 +26,7 @@ public class FormController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.GetUserFormsAsync(formParameters, currentUser);
+        var result = await sender.Send(new GetUserFormsQuery(formParameters, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -41,7 +44,7 @@ public class FormController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.GetTemplateFormsAsync(formParameters, templateId, currentUser);
+        var result = await sender.Send(new GetTemplateFormsQuery(formParameters, templateId, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -59,7 +62,7 @@ public class FormController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.GetFormByIdAsync(id, currentUser);
+        var result = await sender.Send(new GetFormByIdQuery(id, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -74,7 +77,7 @@ public class FormController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.SubmitFormAsync(templateId, formDto, currentUser);
+        var result = await sender.Send(new SubmitFormCommand(templateId, formDto, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -90,7 +93,7 @@ public class FormController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.UpdateFormAsync(id, formDto, currentUser);
+        var result = await sender.Send(new UpdateFormCommand(id, formDto, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -104,7 +107,7 @@ public class FormController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.DeleteFormAsync(id, currentUser);
+        var result = await sender.Send(new DeleteFormCommand(id, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
@@ -118,7 +121,7 @@ public class FormController(IServiceManager serviceManager, IHttpContextAccessor
         if (currentUser == null)
             return Unauthorized();
 
-        var result = await _serviceManager.FormService.GetFormResultsAggregationAsync(templateId, currentUser);
+        var result = await sender.Send(new GetFormResultsAggregationQuery(templateId, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
