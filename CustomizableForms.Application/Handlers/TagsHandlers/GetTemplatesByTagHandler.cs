@@ -2,7 +2,7 @@
 using Contracts.IRepositories;
 using CustomizableForms.Application.Queries.TagsQueries;
 using CustomizableForms.Domain.DTOs;
-using CustomizableForms.Domain.Entities;
+using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 using CustomizableForms.LoggerService;
 using MediatR;
@@ -16,65 +16,64 @@ public class GetTemplatesByTagHandler(
     : IRequestHandler<GetTemplatesByTagQuery, ApiBaseResponse>
 {
     public async Task<ApiBaseResponse> Handle(GetTemplatesByTagQuery request, CancellationToken cancellationToken)
+{
+    try
     {
-        try
+        bool isAdmin = false;
+        if (request.CurrentUser is not null)
         {
-            var tag = await repository.Tag.GetTagByNameAsync(request.TagName, trackChanges: false);
+            var userRoles = await repository.Role.GetUserRolesAsync(
+                request.CurrentUser.Id, 
+                trackChanges: false);
+            isAdmin = userRoles.Any(r => r.Name == "Admin");
+        }
+        
+        var templates = await repository.Template.GetTemplatesByTagAsync(
+            request.TemplateParameters, 
+            request.TagName, 
+            request.CurrentUser, 
+            isAdmin, 
+            trackChanges: false);
+        
+        if (templates.Count == 0)
+        {
+            var tag = await repository.Tag.GetTagByNameAsync(
+                request.TagName, 
+                trackChanges: false);
+                
             if (tag == null)
             {
-                return new ApiBadRequestResponse("Tag not found");
+                return new ApiBadRequestResponse("Тег не найден");
             }
+        }
+        
+        var templatesDto = mapper.Map<IEnumerable<TemplateDto>>(templates);
 
-            IEnumerable<Template> templates;
-            List<Template> templatesWithTag;
-            
-            if (request.CurrentUser is not null)
+        foreach (var templateDto in templatesDto)
+        {
+            var template = templates.FirstOrDefault(t => t.Id == templateDto.Id);
+            if (template != null)
             {
-                bool isAdmin = false;
-                var userRoles = await repository.Role.GetUserRolesAsync(request.CurrentUser.Id, trackChanges: false);
-                isAdmin = userRoles.Any(r => r.Name == "Admin");
-
-                templates = await repository.Template.GetAllowedTemplatesAsync(request.CurrentUser, isAdmin, trackChanges: false);
-                templatesWithTag = templates
-                    .Where(t => t.TemplateTags != null && t.TemplateTags.Any(tt => tt.TagId == tag.Id))
-                    .ToList();    
-            }
-            else
-            {
-                templates = await repository.Template.GetPublicTemplatesAsync(trackChanges: false);
-                templatesWithTag = templates
-                    .Where(t => t.TemplateTags != null && t.TemplateTags.Any(tt => tt.TagId == tag.Id))
-                    .ToList();   
-            }
-            
-
-            var templatesDto = mapper.Map<IEnumerable<TemplateDto>>(templatesWithTag);
-
-            foreach (var templateDto in templatesDto)
-            {
-                var template = templatesWithTag.FirstOrDefault(t => t.Id == templateDto.Id);
-                if (template != null)
+                templateDto.LikesCount = template.Likes?.Count ?? 0;
+                templateDto.CommentsCount = template.Comments?.Count ?? 0;
+                templateDto.FormsCount = template.Forms?.Count ?? 0;
+                
+                if (template.TemplateTags != null)
                 {
-                    templateDto.LikesCount = template.Likes?.Count ?? 0;
-                    templateDto.CommentsCount = template.Comments?.Count ?? 0;
-                    templateDto.FormsCount = template.Forms?.Count ?? 0;
-                    
-                    if (template.TemplateTags != null)
-                    {
-                        templateDto.Tags = template.TemplateTags
-                            .Select(tt => tt.Tag?.Name)
-                            .Where(name => !string.IsNullOrEmpty(name))
-                            .ToList();
-                    }
+                    templateDto.Tags = template.TemplateTags
+                        .Select(tt => tt.Tag?.Name)
+                        .Where(name => !string.IsNullOrEmpty(name))
+                        .ToList();
                 }
             }
+        }
 
-            return new ApiOkResponse<IEnumerable<TemplateDto>>(templatesDto);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError($"Error in {nameof(GetTemplatesByTagHandler)}: {ex.Message}");
-            return new ApiBadRequestResponse($"Error retrieving templates by tag: {ex.Message}");
-        }
+        return new ApiOkResponse<(IEnumerable<TemplateDto>, MetaData)>((templatesDto, templates.MetaData));
     }
+    catch (Exception ex)
+    {
+        logger.LogError($"Error in {nameof(GetTemplatesByTagHandler)}: {ex.Message}");
+        return new ApiBadRequestResponse($"Ошибка при получении шаблонов по тегу: {ex.Message}");
+    }
+}
 }

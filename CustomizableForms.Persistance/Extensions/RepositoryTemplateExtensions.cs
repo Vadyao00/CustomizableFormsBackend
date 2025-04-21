@@ -6,6 +6,16 @@ namespace CustomizableForms.Persistance.Extensions;
 
 public static class RepositoryTemplateExtensions
 {
+    public static IQueryable<Template> Search(this IQueryable<Template> templates, string searchName)
+    {
+        if(string.IsNullOrWhiteSpace(searchName))
+            return templates;
+
+        var lowerCaseName = searchName.Trim().ToLower();
+
+        return templates.Where(t => t.Topic.ToLower() == lowerCaseName);
+    }
+    
     public static IQueryable<Template> Sort(this IQueryable<Template> templates, string orderByQueryString)
     {
         if (string.IsNullOrWhiteSpace(orderByQueryString))

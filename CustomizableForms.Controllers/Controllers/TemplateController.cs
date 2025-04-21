@@ -5,7 +5,6 @@ using CustomizableForms.Application.Queries.TemplatesQueries;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Controllers.Filters;
 using CustomizableForms.Domain.DTOs;
-using CustomizableForms.Domain.Entities;
 using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 using MediatR;
@@ -21,32 +20,44 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
     ApiControllerBase(serviceManager, httpContextAccessor)
 {
     [HttpGet]
-    public async Task<IActionResult> GetTemplates()
+    public async Task<IActionResult> GetTemplates([FromQuery]TemplateParameters templateParameters)
     {
         var currentUser = await GetCurrentUserAsync();
         if (currentUser is null)
         {
-            var baseResult = await sender.Send(new GetPublicTemplatesQuery());
+            var baseResult = await sender.Send(new GetPublicTemplatesQuery(templateParameters));
             if (!baseResult.Success)
                 return ProccessError(baseResult);
             
-            return Ok(baseResult.GetResult<IEnumerable<TemplateDto>>());
+            var (templatess, metaDataa) = baseResult.GetResult<(IEnumerable<TemplateDto>, MetaData)>();
+            
+            Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaDataa));
+            
+            return Ok(templatess);
         }
-        var result = await sender.Send(new GetAllowedTemplatesQuery(currentUser));
+        var result = await sender.Send(new GetAllowedTemplatesQuery(templateParameters, currentUser));
         if (!result.Success)
             return ProccessError(result);
-            
-        return Ok(result.GetResult<IEnumerable<TemplateDto>>());
+
+        var (templates, metaData) = result.GetResult<(IEnumerable<TemplateDto>, MetaData)>();
+        
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(templates);
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> SearchTemplates([FromQuery] string searchTerm)
+    public async Task<IActionResult> SearchTemplates([FromQuery] string searchTerm, [FromQuery]TemplateParameters templateParameters)
     {
-        var baseResult = await sender.Send(new SearchTemplatesQuery(searchTerm));
+        var baseResult = await sender.Send(new SearchTemplatesQuery(templateParameters, searchTerm));
         if (!baseResult.Success)
             return ProccessError(baseResult);
 
-        return Ok(baseResult.GetResult<IEnumerable<TemplateDto>>());
+        var (templates, metaData) = baseResult.GetResult<(IEnumerable<TemplateDto>, MetaData)>();
+        
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(templates);
     }
 
     [HttpGet("popular/{count}")]

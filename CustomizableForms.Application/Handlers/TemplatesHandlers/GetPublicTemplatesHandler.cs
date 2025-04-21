@@ -2,6 +2,7 @@
 using Contracts.IRepositories;
 using CustomizableForms.Application.Queries.TemplatesQueries;
 using CustomizableForms.Domain.DTOs;
+using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 using CustomizableForms.LoggerService;
 using MediatR;
@@ -18,10 +19,10 @@ public class GetPublicTemplatesHandler(
     {
         try
         {
-            var templates = await repository.Template.GetPublicTemplatesAsync(trackChanges: false);
+            var templates = await repository.Template.GetPublicTemplatesAsync(request.TemplateParameters, trackChanges: false);
             var templatesDto = mapper.Map<IEnumerable<TemplateDto>>(templates);
 
-            return new ApiOkResponse<IEnumerable<TemplateDto>>(templatesDto);
+            return new ApiOkResponse<(IEnumerable<TemplateDto>, MetaData)>((templatesDto, templates.MetaData));
         }
         catch (Exception ex)
         {

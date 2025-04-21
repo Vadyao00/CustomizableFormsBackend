@@ -2,6 +2,7 @@
 using Contracts.IRepositories;
 using CustomizableForms.Application.Queries.TemplatesQueries;
 using CustomizableForms.Domain.DTOs;
+using CustomizableForms.Domain.RequestFeatures;
 using CustomizableForms.Domain.Responses;
 using CustomizableForms.LoggerService;
 using MediatR;
@@ -22,10 +23,10 @@ public class GetAllowedTemplatesHandler(
             var userRoles = await repository.Role.GetUserRolesAsync(request.CurrentUser.Id, trackChanges: false);
             isAdmin = userRoles.Any(r => r.Name == "Admin");
             
-            var templates = await repository.Template.GetAllowedTemplatesAsync(request.CurrentUser, isAdmin, trackChanges: false);
+            var templates = await repository.Template.GetAllowedTemplatesAsync(request.TemplateParameters, request.CurrentUser, isAdmin, trackChanges: false);
             var templatesDto = mapper.Map<IEnumerable<TemplateDto>>(templates);
 
-            return new ApiOkResponse<IEnumerable<TemplateDto>>(templatesDto);
+            return new ApiOkResponse<(IEnumerable<TemplateDto>, MetaData)>((templatesDto, templates.MetaData));
         }
         catch (Exception ex)
         {

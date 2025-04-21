@@ -1,7 +1,9 @@
-﻿using Contracts.IServices;
+﻿using System.Text.Json;
+using Contracts.IServices;
 using CustomizableForms.Application.Queries.TagsQueries;
 using CustomizableForms.Controllers.Extensions;
 using CustomizableForms.Domain.DTOs;
+using CustomizableForms.Domain.RequestFeatures;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,14 +46,18 @@ public class TagController(IServiceManager serviceManager, IHttpContextAccessor 
     }
 
     [HttpGet("{tagName}/templates")]
-    public async Task<IActionResult> GetTemplatesByTag(string tagName)
+    public async Task<IActionResult> GetTemplatesByTag([FromQuery]TemplateParameters templateParameters, string tagName)
     {
         var currentUser = await GetCurrentUserAsync();
         
-        var result = await sender.Send(new GetTemplatesByTagQuery(tagName, currentUser));
+        var result = await sender.Send(new GetTemplatesByTagQuery(templateParameters, tagName, currentUser));
         if (!result.Success)
             return ProccessError(result);
 
-        return Ok(result.GetResult<IEnumerable<TemplateDto>>());
+        var (templates, metaData) = result.GetResult<(IEnumerable<TemplateDto>, MetaData)>();
+        
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(templates);
     }
 }
