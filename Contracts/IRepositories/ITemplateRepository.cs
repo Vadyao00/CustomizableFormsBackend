@@ -9,6 +9,9 @@ public interface ITemplateRepository
     Task<PagedList<Template>> GetPublicTemplatesAsync(TemplateParameters templateParameters, bool trackChanges);
     Task<PagedList<Template>> GetAllowedTemplatesAsync(TemplateParameters templateParameters, User currentUser, bool isAdmin, bool trackChanges);
     Task<PagedList<Template>> GetUserTemplatesAsync(TemplateParameters templateParameters, Guid userId, bool trackChanges);
+
+    Task<PagedList<Template>> GetUserPublicTemplatesAsync(TemplateParameters templateParameters, Guid userId, bool trackChanges);
+    Task<PagedList<Template>> GetUserPrivateTemplatesAsync(TemplateParameters templateParameters, Guid userId, bool trackChanges);
     Task<IEnumerable<Template>> GetPopularTemplatesAsync(int count, bool trackChanges);
     Task<IEnumerable<Template>> GetRecentTemplatesAsync(int count, bool trackChanges);
     Task<PagedList<Template>> SearchTemplatesAsync(TemplateParameters templateParameters, string searchTerm, bool trackChanges);

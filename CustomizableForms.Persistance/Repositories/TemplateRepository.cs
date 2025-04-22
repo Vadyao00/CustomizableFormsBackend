@@ -124,6 +124,40 @@ public class TemplateRepository : RepositoryBase<Template>, ITemplateRepository
 
         return new PagedList<Template>(templates, count, templateParameters.PageNumber, templateParameters.PageSize);
     }
+    
+    public async Task<PagedList<Template>> GetUserPublicTemplatesAsync(TemplateParameters templateParameters, Guid userId, bool trackChanges)
+    {
+        var templates =  await FindByCondition(t => t.CreatorId == userId && t.IsPublic, trackChanges)
+            .Include(t => t.Creator)
+            .Include(t => t.Forms)
+            .Include(t => t.TemplateTags)
+            .ThenInclude(tt => tt.Tag)
+            .OrderByDescending(t => t.CreatedAt)
+            .Skip((templateParameters.PageNumber - 1) * templateParameters.PageSize)
+            .Take(templateParameters.PageSize)
+            .ToListAsync();
+
+        var count = await FindByCondition(t => t.CreatorId == userId, trackChanges).CountAsync();
+
+        return new PagedList<Template>(templates, count, templateParameters.PageNumber, templateParameters.PageSize);
+    }
+    
+    public async Task<PagedList<Template>> GetUserPrivateTemplatesAsync(TemplateParameters templateParameters, Guid userId, bool trackChanges)
+    {
+        var templates =  await FindByCondition(t => t.CreatorId == userId && !t.IsPublic, trackChanges)
+            .Include(t => t.Creator)
+            .Include(t => t.Forms)
+            .Include(t => t.TemplateTags)
+            .ThenInclude(tt => tt.Tag)
+            .OrderByDescending(t => t.CreatedAt)
+            .Skip((templateParameters.PageNumber - 1) * templateParameters.PageSize)
+            .Take(templateParameters.PageSize)
+            .ToListAsync();
+
+        var count = await FindByCondition(t => t.CreatorId == userId, trackChanges).CountAsync();
+
+        return new PagedList<Template>(templates, count, templateParameters.PageNumber, templateParameters.PageSize);
+    }
 
     public async Task<IEnumerable<Template>> GetPopularTemplatesAsync(int count, bool trackChanges)
     {

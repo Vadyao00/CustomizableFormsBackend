@@ -118,6 +118,44 @@ public class TemplateController(IServiceManager serviceManager, IHttpContextAcce
         
         return Ok(templates);
     }
+    
+    [Authorize(Policy = "NotBlockedUserPolicy")]
+    [HttpGet("my-public")]
+    public async Task<IActionResult> GetMyPublicTemplates([FromQuery]TemplateParameters templateParameters)
+    {
+        var currentUser = await GetCurrentUserAsync();
+        if (currentUser == null)
+            return Unauthorized();
+
+        var result = await sender.Send(new GetUserPublicTemplatesQuery(templateParameters, currentUser.Id, currentUser));
+        if (!result.Success)
+            return ProccessError(result);
+
+        var (templates, metaData) = result.GetResult<(IEnumerable<TemplateDto>, MetaData)>();
+        
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(templates);
+    }
+    
+    [Authorize(Policy = "NotBlockedUserPolicy")]
+    [HttpGet("my-private")]
+    public async Task<IActionResult> GetMyPrivateTemplates([FromQuery]TemplateParameters templateParameters)
+    {
+        var currentUser = await GetCurrentUserAsync();
+        if (currentUser == null)
+            return Unauthorized();
+
+        var result = await sender.Send(new GetUserPrivateTemplatesQuery(templateParameters, currentUser.Id, currentUser));
+        if (!result.Success)
+            return ProccessError(result);
+
+        var (templates, metaData) = result.GetResult<(IEnumerable<TemplateDto>, MetaData)>();
+        
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+        
+        return Ok(templates);
+    }
 
     [Authorize(Policy = "NotBlockedUserPolicy")]
     [HttpPost]
