@@ -19,7 +19,8 @@ public static class ServiceExtensions
         {
             options.AddPolicy("CorsPolicy", builder =>
                 builder
-                    .WithOrigins("https://customizable-forms-frontend-new.vercel.app")
+                    .WithOrigins("http://localhost:3000")
+                    //"https://customizable-forms-frontend-new.vercel.app"
                     .AllowAnyMethod()
                     .AllowCredentials()
                     .AllowAnyHeader()
@@ -43,6 +44,13 @@ public static class ServiceExtensions
     
     public static void ConfigureServiceManager(this IServiceCollection services) =>
         services.AddScoped<IServiceManager, ServiceManager>();
+    
+    public static void ConfigureSalesforceIntegration(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<SalesforceSettings>(configuration.GetSection("Salesforce"));
+    
+        services.AddHttpClient();
+    }
     
     public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
     {

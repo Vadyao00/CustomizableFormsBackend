@@ -26,6 +26,7 @@ public class CustomizableFormsContext : DbContext
     public virtual DbSet<TemplateAccess> TemplateAccesses { get; set; }
     public virtual DbSet<TemplateComment> TemplateComments { get; set; }
     public virtual DbSet<TemplateLike> TemplateLikes { get; set; }
+    public virtual DbSet<UserSalesforceProfile> UserSalesforceProfiles { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -43,7 +44,8 @@ public class CustomizableFormsContext : DbContext
         modelBuilder.ApplyConfiguration(new TemplateAccessConfiguration());
         modelBuilder.ApplyConfiguration(new TemplateCommentConfiguration());
         modelBuilder.ApplyConfiguration(new TemplateLikeConfiguration());
-
+        modelBuilder.ApplyConfiguration(new UserSalesforceProfileConfiguration());
+        
         modelBuilder.SeedInitialData();
     }
 }

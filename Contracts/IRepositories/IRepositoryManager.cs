@@ -11,5 +11,6 @@ public interface IRepositoryManager
     ICommentRepository Comment { get; }
     ILikeRepository Like { get; }
     IRoleRepository Role { get; }
+    IUserSalesforceProfileRepository UserSalesforceProfile { get; }
     Task SaveAsync();
 }

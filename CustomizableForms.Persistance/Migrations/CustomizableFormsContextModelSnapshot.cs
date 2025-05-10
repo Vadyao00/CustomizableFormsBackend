@@ -364,6 +364,39 @@ namespace CustomizableForms.Persistance.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("CustomizableForms.Domain.Entities.UserSalesforceProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SalesforceAccountId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SalesforceContactId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserSalesforceProfiles");
+                });
+
             modelBuilder.Entity("CustomizableForms.Domain.Entities.Answer", b =>
                 {
                     b.HasOne("CustomizableForms.Domain.Entities.Form", "Form")
@@ -394,7 +427,7 @@ namespace CustomizableForms.Persistance.Migrations
                     b.HasOne("CustomizableForms.Domain.Entities.User", "User")
                         .WithMany("SubmittedForms")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Template");
@@ -454,7 +487,7 @@ namespace CustomizableForms.Persistance.Migrations
                     b.HasOne("CustomizableForms.Domain.Entities.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Template");
@@ -473,7 +506,7 @@ namespace CustomizableForms.Persistance.Migrations
                     b.HasOne("CustomizableForms.Domain.Entities.User", "User")
                         .WithMany("Likes")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Template");

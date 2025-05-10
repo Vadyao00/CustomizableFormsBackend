@@ -27,6 +27,6 @@ public class TemplateCommentConfiguration : IEntityTypeConfiguration<TemplateCom
         builder.HasOne(tc => tc.User)
             .WithMany(u => u.Comments)
             .HasForeignKey(tc => tc.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

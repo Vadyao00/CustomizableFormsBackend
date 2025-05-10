@@ -137,7 +137,7 @@ public class TemplateRepository : RepositoryBase<Template>, ITemplateRepository
             .Take(templateParameters.PageSize)
             .ToListAsync();
 
-        var count = await FindByCondition(t => t.CreatorId == userId, trackChanges).CountAsync();
+        var count = await FindByCondition(t => t.CreatorId == userId && t.IsPublic, trackChanges).CountAsync();
 
         return new PagedList<Template>(templates, count, templateParameters.PageNumber, templateParameters.PageSize);
     }
@@ -154,7 +154,7 @@ public class TemplateRepository : RepositoryBase<Template>, ITemplateRepository
             .Take(templateParameters.PageSize)
             .ToListAsync();
 
-        var count = await FindByCondition(t => t.CreatorId == userId, trackChanges).CountAsync();
+        var count = await FindByCondition(t => t.CreatorId == userId && !t.IsPublic, trackChanges).CountAsync();
 
         return new PagedList<Template>(templates, count, templateParameters.PageNumber, templateParameters.PageSize);
     }

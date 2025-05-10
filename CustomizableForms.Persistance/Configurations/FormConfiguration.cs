@@ -24,6 +24,6 @@ public class FormConfiguration : IEntityTypeConfiguration<Form>
         builder.HasOne(f => f.User)
             .WithMany(u => u.SubmittedForms)
             .HasForeignKey(f => f.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

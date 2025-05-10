@@ -24,7 +24,7 @@ public class TemplateLikeConfiguration : IEntityTypeConfiguration<TemplateLike>
         builder.HasOne(tl => tl.User)
             .WithMany(u => u.Likes)
             .HasForeignKey(tl => tl.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
             
         builder.HasIndex(tl => new { tl.TemplateId, tl.UserId })
             .IsUnique();

@@ -15,7 +15,8 @@ public class RepositoryManager : IRepositoryManager
     private readonly Lazy<ICommentRepository> _commentRepository;
     private readonly Lazy<ILikeRepository> _likeRepository;
     private readonly Lazy<IRoleRepository> _roleRepository;
-
+    private readonly Lazy<IUserSalesforceProfileRepository> _userSalesforceProfileRepository;
+    
     public RepositoryManager(CustomizableFormsContext context)
     {
         _context = context;
@@ -28,6 +29,7 @@ public class RepositoryManager : IRepositoryManager
         _commentRepository = new Lazy<ICommentRepository>(() => new CommentRepository(context));
         _likeRepository = new Lazy<ILikeRepository>(() => new LikeRepository(context));
         _roleRepository = new Lazy<IRoleRepository>(() => new RoleRepository(context));
+        _userSalesforceProfileRepository = new Lazy<IUserSalesforceProfileRepository>(() => new UserSalesforceProfileRepository(context));
     }
 
     public IUserRepository User => _userRepository.Value;
@@ -39,6 +41,7 @@ public class RepositoryManager : IRepositoryManager
     public ICommentRepository Comment => _commentRepository.Value;
     public ILikeRepository Like => _likeRepository.Value;
     public IRoleRepository Role => _roleRepository.Value;
+    public IUserSalesforceProfileRepository UserSalesforceProfile => _userSalesforceProfileRepository.Value;
     
     public async Task SaveAsync() => await _context.SaveChangesAsync();
 }
