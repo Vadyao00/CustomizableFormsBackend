@@ -14,8 +14,12 @@
 
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="14.0.0" />
+      <PackageReference Include="Azure.Identity" Version="1.13.2" />
+      <PackageReference Include="Dropbox.Api" Version="7.0.0" />
       <PackageReference Include="MediatR" Version="12.5.0" />
       <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.0" />
+      <PackageReference Include="Microsoft.Graph" Version="4.52.0" />
+      <PackageReference Include="Microsoft.Identity.Client" Version="4.71.0" />
     </ItemGroup>
 
 </Project>
